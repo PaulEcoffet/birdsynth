@@ -62,6 +62,48 @@ struct Par {
   double amplitud;
 } aa;
 
+/**
+
+Init aa with zeros everywhere because otherwise synth is inconsistent.
+Indeed, otherwise the initial code from the university of Buenos Aires uses
+unintialised values.
+
+It is an quick and dirty fix of the code. I really don't want to change the
+real code a lot.
+
+-- Paul Ecoffet
+*/
+static void init_aa() {
+  // aa is global.
+  aa.A1 = 0;
+  aa.A2 = 0;
+  aa.A3 = 0;
+  aa.Ancho1 = 0;
+  aa.Ancho2 = 0;
+  aa.Ancho3 = 0;
+  aa.r = 0;
+  aa.gamma2 = 0;
+  aa.gamma3 = 0;
+  aa.gm = 0;
+  aa.forcing1 = 0;
+  aa.forcing2 = 0;
+  aa.alfa1 = 0;
+  aa.alfa2 = 0;
+  aa.beta1 = 0;
+  aa.beta2 = 0;
+  aa.beta3 = 0;
+  aa.alfa3 = 0;
+  aa.RBoverLB = 0;
+  aa.s1overLG = 0;
+  aa.s1overLB = 0;
+  aa.s1overCH = 0;
+  aa.LGoverLB = 0;
+  aa.RB = 0;
+  aa.noise = 0;
+  aa.rdis = 0;
+  aa.amplitud = 0;
+}
+
 void takens(int n, double v[], double dv[], double t) {
   extern double PRESSURE, presion, acople;
   double x, y, i1, i2, i3, w2, alfa = 50, x2, y2, x3, y3;
@@ -156,7 +198,7 @@ void finch(double *alpha, double *beta, int size, double *out) {
   int i_cur = 0;
 
   char nombre_archivo1[N_NAME1_AUX];
-
+  init_aa();
   for (ik = 1; ik < 2; ik++) {
     for (ikp = 1; ikp < 2; ikp++) {
 
@@ -330,6 +372,8 @@ void finch(double *alpha, double *beta, int size, double *out) {
           /* Does not take data from file but from the argument data */
           aa.amplitud = alpha[i_cur];
           aa.beta1 = beta[i_cur];
+          // fprintf(stderr, "%ld: %lf %lf\n", i_cur, alpha[i_cur],
+          // beta[i_cur]);
           out[i_cur] = preout * 10;
           taux = 0;
           i_cur++;

@@ -11,8 +11,6 @@ np.import_array()
 DTYPE = np.double
 ctypedef np.double_t DTYPE_t
 
-@boundscheck(False)
-@wraparound(False)
 def synth(np.ndarray[DTYPE_t, ndim=2, mode="c"] alphabeta not None):
   assert alphabeta.dtype == DTYPE, "Must be double"
   cdef double[:] alpha = np.asarray(alphabeta[:, 0]).astype(DTYPE)
