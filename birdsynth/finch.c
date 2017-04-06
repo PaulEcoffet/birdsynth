@@ -14,6 +14,10 @@
 #include "finch.h"
 #include "rk4.h"
 
+#ifndef VERBOSE
+#define VERBOSE 0
+#endif
+
 #define PI2 6.2831853
 #define IA 16807
 #define IM 2147483647
@@ -102,6 +106,44 @@ static void init_aa() {
   aa.noise = 0;
   aa.rdis = 0;
   aa.amplitud = 0;
+}
+
+static void print_aa() {
+  printf("aa.A1 = %lf;\n", aa.A1);
+  printf("aa.A2 = %lf;\n", aa.A2);
+  printf("aa.A3 = %lf;\n", aa.A3);
+  printf("aa.Ancho1 = %lf;\n", aa.Ancho1);
+  printf("aa.Ancho2 = %lf;\n", aa.Ancho2);
+  printf("aa.Ancho3 = %lf;\n", aa.Ancho3);
+  printf("aa.r = %lf;\n", aa.r);
+  printf("aa.gamma2 = %lf;\n", aa.gamma2);
+  printf("aa.gamma3 = %lf;\n", aa.gamma3);
+  printf("aa.gm = %lf;\n", aa.gm);
+  printf("aa.forcing1 = %lf;\n", aa.forcing1);
+  printf("aa.forcing2 = %lf;\n", aa.forcing2);
+  printf("aa.alfa1 = %lf;\n", aa.alfa1);
+  printf("aa.alfa2 = %lf;\n", aa.alfa2);
+  printf("aa.beta1 = %lf;\n", aa.beta1);
+  printf("aa.beta2 = %lf;\n", aa.beta2);
+  printf("aa.beta3 = %lf;\n", aa.beta3);
+  printf("aa.alfa3 = %lf;\n", aa.alfa3);
+  printf("aa.RBoverLB = %lf;\n", aa.RBoverLB);
+  printf("aa.s1overLG = %lf;\n", aa.s1overLG);
+  printf("aa.s1overLB = %lf;\n", aa.s1overLB);
+  printf("aa.s1overCH = %lf;\n", aa.s1overCH);
+  printf("aa.LGoverLB = %lf;\n", aa.LGoverLB);
+  printf("aa.RB = %lf;\n", aa.RB);
+  printf("aa.noise = %lf;\n", aa.noise);
+  printf("aa.rdis = %lf;\n", aa.rdis);
+  printf("aa.amplitud = %lf;\n", aa.amplitud);
+  printf("---------------------\n");
+}
+
+static void print_v(double v[]) {
+  int i = 0;
+  for (i = 0; i < 10; i++) {
+    printf("v[%d] = %.30e;\n", i, v[i]);
+  }
 }
 
 void takens(int n, double v[], double dv[], double t) {
@@ -201,7 +243,7 @@ void finch(double *alpha, double *beta, int size, double *out) {
   init_aa();
   for (ik = 1; ik < 2; ik++) {
     for (ikp = 1; ikp < 2; ikp++) {
-
+      //*
       v[0] = .000000000005;
       v[1] = 0.00000000001;
       v[2] = .000000000001;
@@ -214,7 +256,19 @@ void finch(double *alpha, double *beta, int size, double *out) {
       v[7] = 0.;
       v[8] = 0.1;
       v[9] = 0.0;
-
+      //*/
+      /*
+      v[0] = 6.305617549019946199706510014948e-01;
+      v[1] = -6.019296353020359902075142599642e+01;
+      v[2] = 2.555291041683124261172071600007e-07;
+      v[3] = 7.742143094569151062778189498204e-03;
+      v[4] = -5.082011184634870809836110822804e-10;
+      v[5] = 1.189966633002718543465903167089e+00;
+      v[6] = 3.339289417720148453816419110514e-11;
+      v[7] = 0.000000000000000000000000000000e+00;
+      v[8] = 1.043894773575649356460243774515e-26;
+      v[9] = -6.753616673193740042845268300017e-23;
+      //*/
       aa.forcing1 = 0.;
       aa.forcing2 = 0.;
       tiempot = 0.;
@@ -331,7 +385,6 @@ void finch(double *alpha, double *beta, int size, double *out) {
       aa.RB = 1 * 1e07;
 
       while ((t < to) && (v[1] > -5000000)) {
-
         dbold = db[t];
 
         a[t] = (.50) * (1.01 * (1. * (aa.A1 * v[1] + aa.A2 * v[6] +
@@ -377,6 +430,19 @@ void finch(double *alpha, double *beta, int size, double *out) {
           out[i_cur] = preout * 10;
           taux = 0;
           i_cur++;
+          if ((i_cur == 3000 || i_cur == 21103 || i_cur == 25000 ||
+               i_cur == 25001) &&
+              VERBOSE) {
+            printf("----- %d ------\n", i_cur);
+            print_aa();
+            print_v(v);
+            printf("a[t] = %e;\n",a[t]);
+            printf("bb[t] = %e;\n",bb[t]);
+            printf("bf[t] = %e;\n",bf[t]);
+            printf("cb[t] = %e;\n",cb[t]);
+            printf("cf[t] = %e;\n",cf[t]);
+            printf("db[t] = %e;\n",db[t]);
+          }
         }
         taux++;
 
@@ -395,6 +461,7 @@ void finch(double *alpha, double *beta, int size, double *out) {
 
           aa.rdis = (300. / 5.) * (10000.);
           aa.A1 = (aa.amplitud) + 0.5 * aa.noise;
+          /* DELETED ARTIFICIAL ARGUMENTS
           if ((tiempot > 0.1) && (tiempot < 0.165))
             aa.A1 = sqrt(aa.amplitud) + 10.5 * aa.noise;
           if ((tiempot > 0.215) && (tiempot < 0.315))
@@ -403,6 +470,7 @@ void finch(double *alpha, double *beta, int size, double *out) {
             aa.A1 = sqrt(aa.amplitud) + 10.5 * aa.noise;
           if ((tiempot > 0.214) && (tiempot < 0.255))
             aa.A1 = aa.A1 / 2.;
+          */
           aa.A2 = aa.amplitud * 0.0;
           aa.A3 = 0.;
         }
